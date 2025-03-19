@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization Critiques</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .section {
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+        .image {
+            width: 100%;
+            max-width: 500px;
+            display: block;
+            margin: 0 auto 20px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data Visualization Critiques</h1>
+        
+        <h2>Example 1: The World’s Population at 8 Billion</h2>
+        <p><strong>Source:</strong> <a href="https://www.visualcapitalist.com/visualized-the-worlds-population-at-8-billion/" target="_blank">Visual Capitalist</a></p>
+        
+        <div class="section">
+            <h3>Background</h3>
+            <img src="world-population-at-8-billion.jpg" alt="World Population Distribution" class="image">
+            <p>In September 2022, Visual Capitalist published "Visualized: The World's Population at 8 Billion," a series of visualizations illustrating the global population distribution as it approached the 8 billion milestone. These visuals highlight that over half of the world's population resides in just seven countries: China, India, the United States, Indonesia, Pakistan, Nigeria, and Brazil. The article also emphasizes that Asia accounts for 59% of the global population, underscoring significant regional disparities in population density.</p>
+        </div>
+
+        <div class="section">
+            <h3>Data Issues</h3>
+            <ul>
+                <li><strong>Population rounding inconsistencies:</strong> Total populations may not add up due to rounding errors.</li>
+                <li><strong>Rest of region categorization:</strong> "Rest of" categories make it difficult to interpret exact numbers.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>Idiom Issues</h3>
+            <ul>
+                <li><strong>Use of abbreviations:</strong> Some countries are abbreviated while others are spelled out.</li>
+                <li><strong>Confusing use of M (Million) and B (Billion):</strong> This can cause misinterpretation if not clearly labeled.</li>
+                <li><strong>Ambiguous labels:</strong> Some region totals include specific country counts, making calculations unclear.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>How to Improve</h3>
+            <ul>
+                <li>Provide precise breakdowns and clarify rounding methods.</li>
+                <li>Use consistent country naming conventions.</li>
+                <li>Standardize notation across the visualization.</li>
+                <li>Clearly separate regional totals from individual country data.</li>
+            </ul>
+        </div>
+
+        <hr>
+        
+        <h2>Example 2: It Fell from the Sky</h2>
+        <p><strong>Source:</strong> <a href="https://www.behance.net/gallery/95352539/It-Fell-from-the-Sky#" target="_blank">Behance</a></p>
+        
+        <div class="section">
+            <h3>Background</h3>
+            <img src="it-fell-from-the-sky.jpg" alt="Meteorite Impacts" class="image">
+            <p>"It Fell from the Sky" is a data visualization project by Luiz Amorim that maps 34,000 recorded meteorite impacts on Earth. Inspired by Stephen Hawking’s remark on asteroid collisions, Amorim explored patterns in meteorite impact data. The visualization highlights a noticeable increase in recorded meteorite strikes in recent years. Data was processed using Microsoft Excel, plotted with Java on Processing, and refined in Adobe Illustrator.</p>
+        </div>
+
+        <div class="section">
+            <h3>Data Issues</h3>
+            <ul>
+                <li><strong>Meteorite count inconsistency:</strong> It’s unclear if 34,065 represents all recorded impacts or a subset.</li>
+                <li><strong>Absence of relative scale:</strong> Impact sizes lack a clear numerical reference for comparison.</li>
+                <li><strong>Material composition breakdown:</strong> Hoba meteorite details are incomplete.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>Idiom Issues</h3>
+            <ul>
+                <li><strong>Color contrast:</strong> Dark backgrounds with teal text can be hard to read.</li>
+                <li><strong>Map crowding:</strong> Clustering of impact points can obscure specific details.</li>
+                <li><strong>Lack of legends for dots:</strong> Impact size markers need better explanations.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>How to Improve</h3>
+            <ul>
+                <li>Clarify whether the dataset represents all or selected meteorite impacts.</li>
+                <li>Include a numerical scale for meteorite sizes.</li>
+                <li>Enhance contrast for better readability.</li>
+                <li>Introduce zoom functionality or regional breakdowns.</li>
+                <li>Add a clear legend for impact size markers.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
