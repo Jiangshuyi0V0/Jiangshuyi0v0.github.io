@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graduate Employment Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    .chart-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    canvas {
+      width: 100% !important;
+      height: 400px !important;
+    }
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <span class="navbar-brand mb-0 h1">Graduate Employment Dashboard</span>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="row mb-5">
+      <div class="col-12 col-lg-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">1. Analysis Goal:</h5>
+            <p>
+              To explore the employment prospects and trends across different universities in Singapore.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-5">
+      <div class="col-12 col-lg-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">2. Hypothesis:</h5>
+            <p>
+              The overall employment rates are relatively similar across institutions, while graduate salaries show a consistent upward trend.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-5">
+      <div class="col-12 col-lg-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Graduate Employment Rate</h5>
+            <div class="mb-3">
+              <label for="viewMode" class="form-label">Select Employment View:</label>
+              <select id="viewMode" class="form-select" onchange="switchTab(this.value)">
+                <!-- <option value="all">Overall View</option> -->
+                <option value="ft" selected>Full-Time Employment</option>
+                <option value="other">Other Employment</option>
+                <option value="unemployment">Unemployment</option>
+              </select>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="mainChart"></canvas>
+            </div>
+            <p></p><p></p>
+            <p>
+              <b>Finding (a):</b> COVID-19 has been a significant factor influencing employment rates, with varying impacts across institutions. Notably, SUTD experienced the least disruption in employment rate, whereas SUSS saw the largest decline in full-time employment. However, SUSS also reported a substantial increase in other employment (including part-time, temporary, or freelance work). Given SUSS’s primary focus on social sciences, this suggests that COVID-19 may have had a greater impact on the job market for social science-related fields compared to engineering.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-5">
+      <div class="col-12 col-lg-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Graduate Salary Trends</h5>
+            <div class="mb-3">
+              <label for="salaryMode" class="form-label">Select Salary View:</label>
+              <select id="salaryMode" class="form-select" onchange="switchSalaryTab(this.value)">
+                <option value="basic_mean">Basic Salary Mean</option>
+                <option value="basic_median">Basic Salary Median</option>
+              </select>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="salaryChart"></canvas>
+            </div>
+            <p></p><p></p>
+            <p>
+              <b>Finding (b):</b> Graduate salaries have shown year-on-year growth, with a relatively consistent rate of increase across institutions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-5">
+      <div class="col-12 col-lg-10 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Salary vs Employment Rate</h5>
+            <div class="mb-3">
+              <label for="scatterYear" class="form-label">Select Year:</label>
+              <select id="scatterYear" class="form-select"></select>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="scatterChart"></canvas>
+            </div>
+            <p></p><p></p>
+            <p>
+              <b>Finding (c):</b> Overall, in terms of both employment rate and salary, SMU demonstrates the strongest graduate prospects, followed by SUTD and NUS.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let chart, salaryChart, scatterChart;
+    let uniData = [], overallData = [];
+    const colorMap = {};
+
+    Promise.all([
+      d3.csv('Average_By_University_Year.csv'),
+      d3.csv('Average_By_Year.csv')
+    ]).then(([uni, overall]) => {
+      const uniqueUnis = [...new Set(uni.map(d => d.university))];
+      const palette = ['#A6CEE3', '#FDBF6F', '#B2DF8A', '#FB9A99', '#CAB2D6', '#D5B28F', '#B3B3B3', '#CCEBC5'];
+      uniqueUnis.forEach((u, i) => colorMap[u] = palette[i % palette.length]);
+
+      uniData = uni.map(d => ({
+        university: d.university,
+        year: +d.year,
+        overall: +d.employment_rate_overall,
+        full: +d.employment_rate_ft_perm,
+        other: +d.employment_rate_overall - +d.employment_rate_ft_perm,
+        unemployment: 100 - +d.employment_rate_overall,
+        basic_mean: +d.basic_monthly_mean,
+        basic_median: +d.basic_monthly_median
+      }));
+
+      overallData = overall.map(d => ({
+        year: +d.year,
+        overall: +d.employment_rate_overall,
+        full: +d.employment_rate_ft_perm,
+        other: +d.employment_rate_overall - +d.employment_rate_ft_perm,
+        unemployment: 100 - +d.employment_rate_overall
+      }));
+
+      switchTab('ft');
+      switchSalaryTab('basic_mean');
+      populateScatterDropdown();
+    });
+
+    function populateScatterDropdown() {
+      const yearSelect = document.getElementById('scatterYear');
+      const years = [...new Set(uniData.map(d => d.year))].sort();
+      yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join('');
+      yearSelect.addEventListener('change', () => drawScatterChart(+yearSelect.value));
+      drawScatterChart(years[0]);
+    }
+
+    function drawScatterChart(year) {
+      if (scatterChart) scatterChart.destroy();
+      const ctx = document.getElementById('scatterChart').getContext('2d');
+      const dataPoints = uniData.filter(d => d.year === year).map(d => ({
+        x: d.full,
+        y: d.basic_mean,
+        label: d.university,
+        backgroundColor: colorMap[d.university] || '#999'
+      }));
+
+      scatterChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: dataPoints.map(p => ({
+            label: p.label,
+            data: [{ x: p.x, y: p.y }],
+            backgroundColor: p.backgroundColor,
+            borderColor: p.backgroundColor,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            showLine: false,
+            borderWidth: 2
+          }))
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: context => `${context.dataset.label}: Employment Rate ${context.raw.x.toFixed(1)}%, Salary $${context.raw.y.toFixed(0)}`
+              }
+            },
+            title: {
+              display: true,
+              text: `Salary vs Employment Rate (${year})`
+            },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'line',
+                boxWidth: 30,
+                padding: 15
+              },
+              maxHeight: 80,
+              maxWidth: 700,
+              align: 'start'
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Employment Rate (%)' },
+              min: 50, max: 100
+            },
+            y: {
+              title: { display: true, text: 'Basic Monthly Salary (Mean, $)' },
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+
+    function switchTab(tab) {
+      if (chart) chart.destroy();
+      const ctx = document.getElementById('mainChart').getContext('2d');
+      const fieldMap = { ft: 'full', other: 'other', unemployment: 'unemployment' };
+      const field = fieldMap[tab];
+      const universities = [...new Set(uniData.map(d => d.university))];
+      const years = [...new Set(uniData.map(d => d.year))].sort();
+      const datasets = universities.map(u => {
+        const uniRows = uniData.filter(d => d.university === u);
+        const mapByYear = Object.fromEntries(uniRows.map(d => [d.year, d]));
+        return {
+          label: u,
+          data: years.map(y => mapByYear[y]?.[field] ?? null),
+          borderColor: colorMap[u],
+          backgroundColor: colorMap[u],
+          fill: false,
+          tension: 0.2,
+          borderWidth: 2
+        };
+      });
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: years, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            title: { display: true, text: `${field[0].toUpperCase() + field.slice(1)} Employment by University` },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'line',
+                boxWidth: 30,
+                padding: 15
+              },
+              maxHeight: 80,
+              maxWidth: 700,
+              align: 'start'
+            }
+          },
+          interaction: { mode: 'nearest', axis: 'x', intersect: false },
+          scales: {
+            y: {
+              beginAtZero: false,
+              suggestedMin: Math.min(...[].concat(...datasets.map(d => d.data)).filter(x => x !== null)) - 2,
+              suggestedMax: Math.max(...[].concat(...datasets.map(d => d.data)).filter(x => x !== null)) + 2
+            }
+          }
+        }
+      });
+    }
+
+    function switchSalaryTab(field) {
+      if (salaryChart) salaryChart.destroy();
+      const ctx = document.getElementById('salaryChart').getContext('2d');
+      const years = [...new Set(uniData.map(d => d.year))].sort();
+      const universities = [...new Set(uniData.map(d => d.university))];
+      const datasets = universities.map(u => {
+        const yearlyValues = years.map(y => {
+          const record = uniData.find(d => d.year === y && d.university === u);
+          return record ? record[field] : null;
+        });
+        return {
+          label: u,
+          data: yearlyValues,
+          backgroundColor: colorMap[u],
+          borderColor: colorMap[u],
+          fill: false,
+          tension: 0.3,
+          borderWidth: 2
+        };
+      });
+      salaryChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: years, datasets },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: field === 'basic_mean' ? 'Basic Monthly Salary (Mean) Over Years' : 'Basic Monthly Salary (Median) Over Years'
+            },
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'line',
+                boxWidth: 30,
+                padding: 15
+              },
+              maxHeight: 80,
+              maxWidth: 700,
+              align: 'start'
+            }
+          },
+          scales: {
+            x: { stacked: false },
+            y: { beginAtZero: false, suggestedMin: 2500, suggestedMax: 5500 }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
